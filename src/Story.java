@@ -18,16 +18,20 @@ public class Story extends WorkItem {
         if (this.sprint != null) {
             this.sprint.removeStory(this);
         }
+        Sprint oldSprint = this.sprint;
         this.sprint = sprint;
         sprint.addStory(this);
         this.setStatus(Status.IN_PROGRESS);
+        firePropertyChange("sprint", oldSprint, sprint);
     }
 
     public void unassignFromSprint() {
         if (this.sprint != null) {
+            Sprint oldSprint = this.sprint;
             this.sprint.removeStory(this);
             this.sprint = null;
             this.setStatus(Status.BACKLOG);
+            firePropertyChange("sprint", oldSprint, null);
         }
     }
 
@@ -36,12 +40,30 @@ public class Story extends WorkItem {
     public Sprint getSprint() { return sprint; }
 
     public List<Developer> getDevelopers() { return developers; }
-    public void addDeveloper(Developer developer) { developers.add(developer); }
-    public void removeDeveloper(Developer developer) { developers.remove(developer); }
+    public void addDeveloper(Developer developer) {
+        if (developer == null) return;
+        if (developers.contains(developer)) return;
+        developers.add(developer);
+        firePropertyChange("developers", null, developer);
+    }
+    public void removeDeveloper(Developer developer) {
+        if (developer == null) return;
+        if (!developers.remove(developer)) return;
+        firePropertyChange("developers", developer, null);
+    }
 
     public List<Task> getTasks() { return tasks; }
-    public void addTask(Task task) { tasks.add(task); }
-    public void removeTask(Task task) { tasks.remove(task); }
+    public void addTask(Task task) {
+        if (task == null) return;
+        if (tasks.contains(task)) return;
+        tasks.add(task);
+        firePropertyChange("tasks", null, task);
+    }
+    public void removeTask(Task task) {
+        if (task == null) return;
+        if (!tasks.remove(task)) return;
+        firePropertyChange("tasks", task, null);
+    }
 
     @Override
     public void displayDetails() {
@@ -66,5 +88,10 @@ public class Story extends WorkItem {
                 task.displayDetails();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return getTitle() + " [" + getStatus() + "]";
     }
 }

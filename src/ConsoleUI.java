@@ -20,7 +20,6 @@ public class ConsoleUI {
         }
     }
 
-
     private void createProject() {
         String name = readText("Enter project name: ");
         Blackboard.getInstance().addProject(new Project(name));
